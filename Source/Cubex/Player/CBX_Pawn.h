@@ -18,9 +18,6 @@ public:
 	// Sets default values for this pawn's properties
 	ACBX_Pawn();
 
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -28,10 +25,35 @@ public:
 	UInputAction* InputMove;
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 	
 	virtual void Move(const FInputActionValue& Value);
+
+	virtual void CheckMovement(FVector2D InputValue);
+
+	virtual void MoveAroundPivot();
+
+	virtual FVector GetPivotPointFromDirection();
+
+	UPROPERTY()
+	FVector CubeDimension;
+
+	UPROPERTY()
+	FVector LastPosition;
+
+	UPROPERTY()
+	int32 CurrentSteps;
+
+	UPROPERTY()
+	int32 MaxSteps;
+
+	UPROPERTY()
+	FVector2D MovementValue;
+
+	UPROPERTY()
+	FTimerHandle MovementTimerHandle;
+
+	UPROPERTY()
+	bool InMovement;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enhanced Input")
 	UInputMappingContext* InputMappingContext;
