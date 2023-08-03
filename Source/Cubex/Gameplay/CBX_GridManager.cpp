@@ -4,6 +4,8 @@
 #include "Cubex/Gameplay/CBX_GridManager.h"
 
 #include "Camera/CameraComponent.h"
+#include "Components/BoxComponent.h"
+#include "Cubex/Interfaces/CBX_GridMovement.h"
 #include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
@@ -13,13 +15,18 @@ ACBX_GridManager::ACBX_GridManager()
 	PrimaryActorTick.bCanEverTick = false;
 
 	//Grid values
-	GridHeight = GridWidth = 15;
+	GridHeight = GridWidth = 9;
 	CellSpace = 100;
 	GridState.Init(ECellState::Empty, GridHeight * GridWidth);
 
 	//Root Comp
 	USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 	SetRootComponent(SceneComponent);
+
+	//Box collider
+	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Box Collider"));
+	BoxCollider->InitBoxExtent(FVector(GridWidth * (CellSpace / 2) - 1,GridHeight * (CellSpace / 2) - 1,  CellSpace * 2));
+	BoxCollider->SetGenerateOverlapEvents(true);
 
 	//Camera Setup
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
@@ -30,6 +37,12 @@ ACBX_GridManager::ACBX_GridManager()
 	SpringArmComponent->SetRelativeRotation(FRotator(-30,-135, 0));
 	CameraComponent->SetupAttachment(SpringArmComponent);
 	
+}
+
+void ACBX_GridManager::NotifyActorEndOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorEndOverlap(OtherActor);
+	Cast<ICBX_GridMovement>(OtherActor)->OutOfBounds();
 }
 
 void ACBX_GridManager::BeginPlay()

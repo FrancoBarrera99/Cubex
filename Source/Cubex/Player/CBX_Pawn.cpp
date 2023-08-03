@@ -19,6 +19,10 @@ ACBX_Pawn::ACBX_Pawn()
 	MaxSteps = 8;
 	MovementValue = FVector2D(0);
 	InMovement = false;
+	IsDead = false;
+
+	Cube = CreateDefaultSubobject<UStaticMeshComponent>("Cube Mesh Component");
+	Cube->SetupAttachment(GetRootComponent());
 
 }
 
@@ -41,6 +45,18 @@ void ACBX_Pawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	}
 }
 
+void ACBX_Pawn::OutOfBounds()
+{
+	Die();
+}
+
+void ACBX_Pawn::Die()
+{
+	StopMovement();
+	IsDead = true;
+	Cube->SetSimulatePhysics(true);
+}
+
 void ACBX_Pawn::Move(const FInputActionValue& Value)
 {
 	const FVector2D MoveValue = Value.Get<FVector2D>();
@@ -56,7 +72,7 @@ void ACBX_Pawn::Move(const FInputActionValue& Value)
 
 void ACBX_Pawn::CheckMovement(FVector2D InputValue)
 {
-	if (!InMovement)
+	if (!InMovement && !IsDead)
 	{
 		InMovement = true;
 		MovementValue = InputValue;
@@ -85,10 +101,15 @@ void ACBX_Pawn::MoveAroundPivot()
 		CurrentSteps++;
 	}else
 	{
-		CurrentSteps = 0;
-		GetWorldTimerManager().ClearTimer(MovementTimerHandle);
-		InMovement = false;
+		StopMovement();
 	}
+}
+
+void ACBX_Pawn::StopMovement()
+{
+	CurrentSteps = 0;
+	if (MovementTimerHandle.IsValid()) GetWorldTimerManager().ClearTimer(MovementTimerHandle);
+	InMovement = false;
 }
 
 FVector ACBX_Pawn::GetPivotPointFromDirection()

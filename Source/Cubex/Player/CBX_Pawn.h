@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "InputMappingContext.h"
+#include "Cubex/Interfaces/CBX_GridMovement.h"
 #include "GameFramework/Pawn.h"
 #include "CBX_Pawn.generated.h"
 
 class UInputAction;
 
 UCLASS()
-class CUBEX_API ACBX_Pawn : public APawn
+class CUBEX_API ACBX_Pawn : public APawn, public ICBX_GridMovement
 {
 	GENERATED_BODY()
 		
@@ -21,8 +22,15 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void OutOfBounds() override;
+
+	void Die();
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enhanced Input")
 	UInputAction* InputMove;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UStaticMeshComponent* Cube;
 
 protected:
 	
@@ -31,6 +39,8 @@ protected:
 	virtual void CheckMovement(FVector2D InputValue);
 
 	virtual void MoveAroundPivot();
+
+	virtual void StopMovement();
 
 	virtual FVector GetPivotPointFromDirection();
 
@@ -54,6 +64,9 @@ protected:
 
 	UPROPERTY()
 	bool InMovement;
+
+	UPROPERTY()
+	bool IsDead;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enhanced Input")
 	UInputMappingContext* InputMappingContext;

@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "CBX_GridManager.generated.h"
 
+class UBoxComponent;
 class UCameraComponent;
 class USpringArmComponent;
 
@@ -24,6 +25,11 @@ class CUBEX_API ACBX_GridManager : public AActor
 	
 public:	
 	ACBX_GridManager();
+
+	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
+
+	UPROPERTY(VisibleAnywhere)
+	UBoxComponent* BoxCollider;
 
 protected:
 
