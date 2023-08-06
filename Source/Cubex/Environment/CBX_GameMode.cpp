@@ -15,7 +15,10 @@ void ACBX_GameMode::EndGame()
 {
 	if (const APlayerController* PC = GetWorld()->GetFirstPlayerController())
 	{
-		PC->GetHUD<ACBX_Hud>()->ShowRestartGUI();
+		if (ACBX_Hud* HUD = PC->GetHUD<ACBX_Hud>())
+		{
+			HUD->ShowRestartGUI();
+		}
 	}
 }
 
