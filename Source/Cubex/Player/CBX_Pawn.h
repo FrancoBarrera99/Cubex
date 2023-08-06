@@ -8,6 +8,8 @@
 #include "GameFramework/Pawn.h"
 #include "CBX_Pawn.generated.h"
 
+DECLARE_DELEGATE(FMovementFinished);
+
 class UInputAction;
 
 UCLASS()
@@ -25,6 +27,10 @@ public:
 	virtual void OutOfBounds() override;
 
 	void Die();
+
+	void FinishDying();
+
+	FMovementFinished MovementFinished;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enhanced Input")
 	UInputAction* InputMove;

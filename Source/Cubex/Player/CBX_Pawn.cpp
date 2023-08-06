@@ -54,11 +54,27 @@ void ACBX_Pawn::OutOfBounds()
 
 void ACBX_Pawn::Die()
 {
-	StopMovement();
-	IsDead = true;
-	Cube->SetSimulatePhysics(true);
+	if (!IsDead)
+	{
+		IsDead = true;
+		if (!InMovement)
+		{
+			FinishDying();
+		}else
+		{
+			MovementFinished.BindUObject(this, &ACBX_Pawn::FinishDying);
+		}
+	}
+}
 
-	Cast<ACBX_GameMode>(UGameplayStatics::GetGameMode(GetWorld()))->EndGame();
+void ACBX_Pawn::FinishDying()
+{
+	//TODO : spawn particles
+
+	if (ACBX_GameMode* GameMode = Cast<ACBX_GameMode>(UGameplayStatics::GetGameMode(GetWorld())))
+	{
+		GameMode->EndGame();
+	}
 }
 
 void ACBX_Pawn::Move(const FInputActionValue& Value)
@@ -114,6 +130,7 @@ void ACBX_Pawn::StopMovement()
 	CurrentSteps = 0;
 	if (MovementTimerHandle.IsValid()) GetWorldTimerManager().ClearTimer(MovementTimerHandle);
 	InMovement = false;
+	MovementFinished.ExecuteIfBound();
 }
 
 FVector ACBX_Pawn::GetPivotPointFromDirection()
