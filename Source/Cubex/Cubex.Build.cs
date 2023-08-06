@@ -13,12 +13,14 @@ public class Cubex : ModuleRules
 			"Core", 
 			"CoreUObject", 
 			"Engine", 
-			"InputCore"
+			"InputCore",
+			"UMG"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
-			"EnhancedInput"
+			"EnhancedInput", 
+			"CommonUI"
 		});
 
 		// Uncomment if you are using Slate UI

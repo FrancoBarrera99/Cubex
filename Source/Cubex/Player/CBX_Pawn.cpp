@@ -5,6 +5,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "InputAction.h"
+#include "Cubex/Environment/CBX_GameMode.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
@@ -55,6 +57,8 @@ void ACBX_Pawn::Die()
 	StopMovement();
 	IsDead = true;
 	Cube->SetSimulatePhysics(true);
+
+	Cast<ACBX_GameMode>(UGameplayStatics::GetGameMode(GetWorld()))->EndGame();
 }
 
 void ACBX_Pawn::Move(const FInputActionValue& Value)
