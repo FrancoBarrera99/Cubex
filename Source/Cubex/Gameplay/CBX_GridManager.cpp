@@ -17,7 +17,6 @@ ACBX_GridManager::ACBX_GridManager()
 	//Grid values
 	GridHeight = GridWidth = 9;
 	CellSpace = 100;
-	GridState.Init(ECellState::Empty, GridHeight * GridWidth);
 
 	//Root Comp
 	USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
@@ -39,10 +38,28 @@ ACBX_GridManager::ACBX_GridManager()
 	
 }
 
+const TArray<FCellStruct>& ACBX_GridManager::GetGrid()
+{
+	return Grid;
+}
+
+TArray<FCellStruct> ACBX_GridManager::GetGridByCellState(const ECellState& CellState)
+{
+	return Grid.FilterByPredicate([CellState](const FCellStruct& CellStruct)
+	{
+		return CellStruct.CellState == CellState;
+	});
+}
+
+void ACBX_GridManager::ChangeCellState(int32 CellIndex, ECellState NewState)
+{
+	Grid[CellIndex].CellState = NewState;
+}
+
 void ACBX_GridManager::NotifyActorEndOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorEndOverlap(OtherActor);
-	Cast<ICBX_GridMovement>(OtherActor)->OutOfBounds();
+	if (Cast<ICBX_GridMovement>(OtherActor))	Cast<ICBX_GridMovement>(OtherActor)->OutOfBounds();
 }
 
 void ACBX_GridManager::BeginPlay()
@@ -62,14 +79,15 @@ void ACBX_GridManager::InitializeGrid()
 
 		const float HalfWidth = (GridWidth - 1) * CellSpace * 0.5f;
 		const float HalfHeight = (GridHeight - 1) * CellSpace * 0.5f;
+		int32 CellIndex = 0;
 
 		for (int i = 0; i < GridWidth; ++i)
 		{
 			for (int j = 0; j < GridHeight; ++j)
 			{
 				// Calculate the offset from the center for each cell
-				float OffsetX = i * CellSpace - HalfWidth;
-				float OffsetY = j * CellSpace - HalfHeight;
+				const float OffsetX = i * CellSpace - HalfWidth;
+				const float OffsetY = j * CellSpace - HalfHeight;
 
 				const FVector SpawnLocation = FVector(OffsetX, OffsetY, 0.0f);
 				const FName MeshName = FName(TEXT("StaticMeshComponent_") + FString::FromInt(i * GridHeight + j));
@@ -78,11 +96,19 @@ void ACBX_GridManager::InitializeGrid()
 				this->AddInstanceComponent(StaticMeshComponent);
 				StaticMeshComponent->RegisterComponent();
 				this->Modify();
-				ManagedStaticMeshComponents.Add(StaticMeshComponent);
 
 				StaticMeshComponent->SetStaticMesh(GridMesh);
 				StaticMeshComponent->AttachToComponent(GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
 				StaticMeshComponent->SetRelativeLocation(SpawnLocation);
+
+				FCellStruct NewCell;
+				NewCell.CellState = ECellState::Empty;
+				NewCell.StaticMeshComponent = StaticMeshComponent;
+				NewCell.Index = CellIndex;
+				
+				Grid.Add(NewCell);
+
+				CellIndex++;
 			}
 		}
 	}

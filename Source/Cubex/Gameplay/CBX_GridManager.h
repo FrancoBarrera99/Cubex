@@ -10,13 +10,29 @@ class UBoxComponent;
 class UCameraComponent;
 class USpringArmComponent;
 
-
 UENUM(BlueprintType)
 enum ECellState
 {
 	Empty,
 	Obstacle
 };
+
+USTRUCT()
+struct FCellStruct
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	int32 Index;
+
+	UPROPERTY()
+	TEnumAsByte<ECellState> CellState;
+
+	UPROPERTY()
+	UStaticMeshComponent* StaticMeshComponent;
+};
+
+
 
 UCLASS()
 class CUBEX_API ACBX_GridManager : public AActor
@@ -25,6 +41,12 @@ class CUBEX_API ACBX_GridManager : public AActor
 	
 public:	
 	ACBX_GridManager();
+
+	const TArray<FCellStruct>& GetGrid();
+
+	TArray<FCellStruct> GetGridByCellState(const ECellState& CellState);
+
+	void ChangeCellState(int32 CellIndex, ECellState NewState);
 
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
 
@@ -49,10 +71,7 @@ protected:
 	int32 CellSpace;
 
 	UPROPERTY()
-	TArray<TEnumAsByte<ECellState>> GridState;
-
-	UPROPERTY()
-	TArray<UStaticMeshComponent*> ManagedStaticMeshComponents;
+	TArray<FCellStruct> Grid;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
 	UStaticMesh* GridMesh;
