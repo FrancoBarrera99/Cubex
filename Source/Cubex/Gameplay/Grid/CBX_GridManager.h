@@ -42,6 +42,8 @@ class CUBEX_API ACBX_GridManager : public AActor
 public:	
 	ACBX_GridManager();
 
+	void BuildGrid();
+
 	const TArray<FCellStruct>& GetGrid();
 
 	TArray<FCellStruct> GetGridByCellState(const ECellState& CellState);
@@ -80,6 +82,4 @@ protected:
 	UMaterial* GridMeshMaterial;
 
 	virtual void BeginPlay() override;
-	
-	void InitializeGrid();
 };

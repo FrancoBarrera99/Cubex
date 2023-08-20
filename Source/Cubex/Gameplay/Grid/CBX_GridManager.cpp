@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Cubex/Gameplay/CBX_GridManager.h"
+#include "Cubex/Gameplay/Grid/CBX_GridManager.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
@@ -35,6 +35,8 @@ ACBX_GridManager::ACBX_GridManager()
 	SpringArmComponent->TargetArmLength = 175.0f * GridHeight;
 	SpringArmComponent->SetRelativeRotation(FRotator(-30,-135, 0));
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	
 	
 }
 
@@ -65,10 +67,9 @@ void ACBX_GridManager::NotifyActorEndOverlap(AActor* OtherActor)
 void ACBX_GridManager::BeginPlay()
 {
 	Super::BeginPlay();
-	InitializeGrid();
 }
 
-void ACBX_GridManager::InitializeGrid()
+void ACBX_GridManager::BuildGrid()
 {
 	if (GridMesh)
 	{

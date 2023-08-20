@@ -3,13 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Cubex/Gameplay/Grid/CBX_GridManager.h"
 #include "UObject/Interface.h"
-#include "CBX_ObstacleStrategy.generated.h"
+#include "CBX_GameplayState.generated.h"
 
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI)
-class UCBX_ObstacleStrategy : public UInterface
+UINTERFACE(MinimalAPI, Blueprintable)
+class UCBX_GameplayState : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -17,13 +16,15 @@ class UCBX_ObstacleStrategy : public UInterface
 /**
  * 
  */
-class CUBEX_API ICBX_ObstacleStrategy
+class CUBEX_API ICBX_GameplayState
 {
 	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
-	virtual void BuildObstacle(ACBX_GridManager* GridManager) = 0;
-	
+	virtual void Start() = 0;
+	virtual void NextState() = 0;
+	virtual void Stop() = 0;
+	virtual int32 GetLevel() = 0;
 };

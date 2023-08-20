@@ -24,5 +24,8 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void ShowRestartGUI();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void ShowPreparationGUI();
 	
 };
