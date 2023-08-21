@@ -56,7 +56,7 @@ void ACBX_SpykeStrategy::OnTimelineFinished()
 {
 	if (GridManagerPtr)
 	{
-		GridManagerPtr->ChangeCellState(SelectedCellIndex, ECellState::Empty);
+		GridManagerPtr->GetGrid()[SelectedCellIndex]->SetState(ECellState::Empty);
 	}
 	Destroy();
 }
@@ -87,10 +87,10 @@ void ACBX_SpykeStrategy::MoveToEmptyCell()
 
 		const int32 RandomIndex = FMath::RandRange(0, Grid.Num() - 1);
 	
-		SelectedCellIndex = Grid[RandomIndex].Index;
-		GridManagerPtr->ChangeCellState(SelectedCellIndex, ECellState::Obstacle);
+		SelectedCellIndex = Grid[RandomIndex]->GetIndex();
+		Grid[SelectedCellIndex]->SetState(ECellState::Obstacle);
 
-		SetActorLocation(Grid[SelectedCellIndex].StaticMeshComponent->GetComponentLocation());
+		SetActorLocation(Grid[SelectedCellIndex]->GetComponentLocation());
 	}
 }
 

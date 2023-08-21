@@ -3,6 +3,7 @@
 
 #include "Cubex/Gameplay/Grid/CBX_GridManager.h"
 
+#include "CBX_GridCell.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Cubex/Interfaces/CBX_GridMovement.h"
@@ -35,27 +36,20 @@ ACBX_GridManager::ACBX_GridManager()
 	SpringArmComponent->TargetArmLength = 175.0f * GridHeight;
 	SpringArmComponent->SetRelativeRotation(FRotator(-30,-135, 0));
 	CameraComponent->SetupAttachment(SpringArmComponent);
-
-	
 	
 }
 
-const TArray<FCellStruct>& ACBX_GridManager::GetGrid()
+TArray<UCBX_GridCell*> ACBX_GridManager::GetGrid()
 {
 	return Grid;
 }
 
-TArray<FCellStruct> ACBX_GridManager::GetGridByCellState(const ECellState& CellState)
+TArray<UCBX_GridCell*> ACBX_GridManager::GetGridByCellState(const ECellState& CellState)
 {
-	return Grid.FilterByPredicate([CellState](const FCellStruct& CellStruct)
+	return Grid.FilterByPredicate([CellState](UCBX_GridCell* CellComponent)
 	{
-		return CellStruct.CellState == CellState;
+		return CellComponent->GetState() == CellState;
 	});
-}
-
-void ACBX_GridManager::ChangeCellState(int32 CellIndex, ECellState NewState)
-{
-	Grid[CellIndex].CellState = NewState;
 }
 
 void ACBX_GridManager::NotifyActorEndOverlap(AActor* OtherActor)
@@ -71,13 +65,6 @@ void ACBX_GridManager::BeginPlay()
 
 void ACBX_GridManager::BuildGrid()
 {
-	if (GridMesh)
-	{
-		if (GridMeshMaterial)
-		{
-			GridMesh->SetMaterial(0, GridMeshMaterial);
-		}
-
 		const float HalfWidth = (GridWidth - 1) * CellSpace * 0.5f;
 		const float HalfHeight = (GridHeight - 1) * CellSpace * 0.5f;
 		int32 CellIndex = 0;
@@ -91,28 +78,20 @@ void ACBX_GridManager::BuildGrid()
 				const float OffsetY = j * CellSpace - HalfHeight;
 
 				const FVector SpawnLocation = FVector(OffsetX, OffsetY, 0.0f);
-				const FName MeshName = FName(TEXT("StaticMeshComponent_") + FString::FromInt(i * GridHeight + j));
+				const FName ComponentName = FName(TEXT("GridCellComponent") + FString::FromInt(i * GridHeight + j));
+
+				if (UCBX_GridCell* GridCellComponent = NewObject<UCBX_GridCell>(this, CellClass, ComponentName))
+				{
+					GridCellComponent->RegisterComponent();
+					GridCellComponent->AttachToComponent(GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
+					GridCellComponent->SetRelativeLocation(SpawnLocation);
+					GridCellComponent->SetIndex(CellIndex);
 				
-				UStaticMeshComponent* StaticMeshComponent = NewObject<UStaticMeshComponent>(this, MeshName);
-				this->AddInstanceComponent(StaticMeshComponent);
-				StaticMeshComponent->RegisterComponent();
-				this->Modify();
-
-				StaticMeshComponent->SetStaticMesh(GridMesh);
-				StaticMeshComponent->AttachToComponent(GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
-				StaticMeshComponent->SetRelativeLocation(SpawnLocation);
-
-				FCellStruct NewCell;
-				NewCell.CellState = ECellState::Empty;
-				NewCell.StaticMeshComponent = StaticMeshComponent;
-				NewCell.Index = CellIndex;
-				
-				Grid.Add(NewCell);
-
+					Grid.Add(GridCellComponent);
+				}
 				CellIndex++;
 			}
 		}
-	}
 }
 
 

@@ -4,34 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Cubex/Gameplay/Grid/CBX_GridCell.h"
 #include "CBX_GridManager.generated.h"
 
 class UBoxComponent;
 class UCameraComponent;
 class USpringArmComponent;
-
-UENUM(BlueprintType)
-enum ECellState
-{
-	Empty,
-	Obstacle
-};
-
-USTRUCT()
-struct FCellStruct
-{
-	GENERATED_BODY()
-
-	UPROPERTY()
-	int32 Index;
-
-	UPROPERTY()
-	TEnumAsByte<ECellState> CellState;
-
-	UPROPERTY()
-	UStaticMeshComponent* StaticMeshComponent;
-};
-
 
 
 UCLASS()
@@ -44,11 +22,9 @@ public:
 
 	void BuildGrid();
 
-	const TArray<FCellStruct>& GetGrid();
+	TArray<UCBX_GridCell*> GetGrid();
 
-	TArray<FCellStruct> GetGridByCellState(const ECellState& CellState);
-
-	void ChangeCellState(int32 CellIndex, ECellState NewState);
+	TArray<UCBX_GridCell*> GetGridByCellState(const ECellState& CellState);
 
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
 
@@ -72,14 +48,11 @@ protected:
 	UPROPERTY()
 	int32 CellSpace;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UStaticMeshComponent> CellClass;
+
 	UPROPERTY()
-	TArray<FCellStruct> Grid;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
-	UStaticMesh* GridMesh;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
-	UMaterial* GridMeshMaterial;
+	TArray<UCBX_GridCell*> Grid;
 
 	virtual void BeginPlay() override;
 };
