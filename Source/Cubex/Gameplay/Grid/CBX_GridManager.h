@@ -20,18 +20,40 @@ class CUBEX_API ACBX_GridManager : public AActor
 public:	
 	ACBX_GridManager();
 
-	void BuildGrid();
+	UFUNCTION()
+	virtual void UpdateSize(int32 NewGridHeight, int32 NewGridWidth);
 
+	UFUNCTION()
+	virtual void ToggleVisibility(bool bIsVisible);
+
+	UFUNCTION()
 	TArray<UCBX_GridCell*> GetGrid();
 
+	UFUNCTION()
 	TArray<UCBX_GridCell*> GetGridByCellState(const ECellState& CellState);
 
+	UFUNCTION()
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
 
 	UPROPERTY(VisibleAnywhere)
 	UBoxComponent* BoxCollider;
 
 protected:
+
+	UFUNCTION()
+	void HideExcessComponents();
+
+	UFUNCTION()
+	void ChangeGridComponentsVisibilityInRange(FInt32Range WidthRange, FInt32Range HeightRange, bool bNewVisibility);
+
+	UFUNCTION()
+	void UpdateComponents();
+
+	UFUNCTION()
+	void CreateNewCellComponent(const FVector& SpawnLocation, int32 CellIndex);
+
+	UPROPERTY()
+	bool bIsGridVisible;
 
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArmComponent;

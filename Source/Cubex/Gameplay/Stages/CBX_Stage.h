@@ -20,9 +20,10 @@ class CUBEX_API UCBX_Stage : public UObject, public ICBX_GameplayState
 	GENERATED_BODY()
 
 public:
-
 	UCBX_Stage();
 
+	virtual void SetGridManager(ACBX_GridManager* NewGridManger) override;
+	virtual void WaitingToStart() override;
 	virtual void Start() override;
 	virtual void NextState() override;
 	virtual void Stop() override;
@@ -35,7 +36,13 @@ protected:
 	void ControlObstacleSpawning();
 
 	UPROPERTY()
+	ACBX_GridManager* GridManager;
+
+	UPROPERTY()
 	int32 Level;
+
+	UPROPERTY()
+	int32 GridSize;
 
 	UPROPERTY()
 	TArray<ICBX_ObstacleStrategy*> ObstaclesObjects;

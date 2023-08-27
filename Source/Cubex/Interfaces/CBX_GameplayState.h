@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Cubex/Gameplay/Grid/CBX_GridManager.h"
 #include "CBX_GameplayState.generated.h"
 
 // This class does not need to be modified.
@@ -23,6 +24,8 @@ class CUBEX_API ICBX_GameplayState
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
+	virtual void SetGridManager(ACBX_GridManager* NewGridManager) = 0;
+	virtual void WaitingToStart() = 0;
 	virtual void Start() = 0;
 	virtual void NextState() = 0;
 	virtual void Stop() = 0;

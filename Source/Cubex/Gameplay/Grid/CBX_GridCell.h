@@ -13,6 +13,15 @@ enum ECellState
 	Obstacle
 };
 
+UENUM(BlueprintType)
+enum EVisibilityAnimationState
+{
+	Waiting,
+	Showing,
+	Hiding,
+	Finished
+};
+
 /**
  * 
  */
@@ -22,6 +31,9 @@ class CUBEX_API UCBX_GridCell : public UStaticMeshComponent
 	GENERATED_BODY()
 public:
 	UCBX_GridCell();
+
+	UFUNCTION()
+	virtual void BeginPlay() override;
 
 	UFUNCTION()
 	virtual void SetState(const ECellState& NewCellState);
@@ -35,7 +47,31 @@ public:
 	UFUNCTION()
 	virtual int32 GetIndex();
 
+	UFUNCTION()
+	virtual void ChangeVisibility(bool bIsVisible);
+
 protected:
+
+	UFUNCTION()
+	void UpdateScale();
+
+	UFUNCTION()
+	void StopUpdatingScale();
+
+	UFUNCTION()
+	bool ShouldFinishAnimation() const;
+
+	UPROPERTY()
+	float VisibilityAnimationRate;
+
+	UPROPERTY()
+	bool bIsUpdating;
+
+	UPROPERTY()
+	FTimerHandle VisibilityAnimationTimerHandle;
+
+	UPROPERTY()
+	TEnumAsByte<EVisibilityAnimationState> VisibilityAnimationState;
 
 	UPROPERTY()
 	int32 Index;

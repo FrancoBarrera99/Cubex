@@ -16,7 +16,7 @@ ACBX_GridManager::ACBX_GridManager()
 	PrimaryActorTick.bCanEverTick = false;
 
 	//Grid values
-	GridHeight = GridWidth = 9;
+	GridHeight = GridWidth = 0;
 	CellSpace = 100;
 
 	//Root Comp
@@ -25,7 +25,7 @@ ACBX_GridManager::ACBX_GridManager()
 
 	//Box collider
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Box Collider"));
-	BoxCollider->InitBoxExtent(FVector(GridWidth * (CellSpace / 2) - 1,GridHeight * (CellSpace / 2) - 1,  CellSpace * 2));
+	BoxCollider->InitBoxExtent(FVector(0.0));
 	BoxCollider->SetGenerateOverlapEvents(true);
 
 	//Camera Setup
@@ -36,6 +36,8 @@ ACBX_GridManager::ACBX_GridManager()
 	SpringArmComponent->TargetArmLength = 175.0f * GridHeight;
 	SpringArmComponent->SetRelativeRotation(FRotator(-30,-135, 0));
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	bIsGridVisible = false;
 	
 }
 
@@ -63,36 +65,111 @@ void ACBX_GridManager::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ACBX_GridManager::BuildGrid()
+void ACBX_GridManager::UpdateSize(int32 NewGridHeight, int32 NewGridWidth)
 {
-		const float HalfWidth = (GridWidth - 1) * CellSpace * 0.5f;
-		const float HalfHeight = (GridHeight - 1) * CellSpace * 0.5f;
-		int32 CellIndex = 0;
+    if (NewGridHeight == GridHeight && NewGridWidth == GridWidth)
+    {
+        return;
+    }
 
-		for (int i = 0; i < GridWidth; ++i)
-		{
-			for (int j = 0; j < GridHeight; ++j)
-			{
-				// Calculate the offset from the center for each cell
-				const float OffsetX = i * CellSpace - HalfWidth;
-				const float OffsetY = j * CellSpace - HalfHeight;
+    GridHeight = NewGridHeight;
+    GridWidth = NewGridWidth;
 
-				const FVector SpawnLocation = FVector(OffsetX, OffsetY, 0.0f);
-				const FName ComponentName = FName(TEXT("GridCellComponent") + FString::FromInt(i * GridHeight + j));
-
-				if (UCBX_GridCell* GridCellComponent = NewObject<UCBX_GridCell>(this, CellClass, ComponentName))
-				{
-					GridCellComponent->RegisterComponent();
-					GridCellComponent->AttachToComponent(GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
-					GridCellComponent->SetRelativeLocation(SpawnLocation);
-					GridCellComponent->SetIndex(CellIndex);
-				
-					Grid.Add(GridCellComponent);
-				}
-				CellIndex++;
-			}
-		}
+    UpdateComponents();
 }
 
+void ACBX_GridManager::ToggleVisibility(bool bIsVisible)
+{
+	if (bIsVisible == bIsGridVisible)
+	{
+		return;
+	}
+	
+	bIsGridVisible = !bIsGridVisible;
+	
+	const FInt32Range WidthRange(0, GridWidth);
+	const FInt32Range HeightRange(0, GridHeight);
+
+	ChangeGridComponentsVisibilityInRange(WidthRange, HeightRange, bIsVisible);
+}
+
+void ACBX_GridManager::HideExcessComponents()
+{
+	const FInt32Range WidthRange(GridWidth, Grid.Num());
+	const FInt32Range HeightRange(GridHeight, Grid.Num());
+
+	ChangeGridComponentsVisibilityInRange(WidthRange, HeightRange, false);
+}
+
+void ACBX_GridManager::ChangeGridComponentsVisibilityInRange(FInt32Range WidthRange, FInt32Range HeightRange,
+	bool bNewVisibility)
+{
+	for (int i = WidthRange.GetLowerBoundValue(); i < WidthRange.GetUpperBoundValue(); ++i)
+	{
+		for (int j = HeightRange.GetLowerBoundValue(); j < HeightRange.GetUpperBoundValue(); ++j)
+		{
+			const int32 ComponentIndex = i * GridHeight + j;
+			if (ComponentIndex >= 0 && ComponentIndex < Grid.Num())
+			{
+				if (UCBX_GridCell* GridCellComponent = Grid[ComponentIndex])
+				{
+					GridCellComponent->ChangeVisibility(bNewVisibility);
+				}
+			}
+		}
+	}
+}
+
+void ACBX_GridManager::UpdateComponents()
+{
+	const float HalfWidth = (GridWidth - 1) * CellSpace * 0.5f;
+	const float HalfHeight = (GridHeight - 1) * CellSpace * 0.5f;
+	
+	BoxCollider->SetBoxExtent(FVector(HalfWidth, HalfHeight,  CellSpace * 2));
+	SpringArmComponent->TargetArmLength = 175.0f * GridHeight;
+
+	int32 CellIndex = 0;
+
+	for (int w = 0; w < GridWidth; ++w)
+	{
+		for (int h = 0; h < GridHeight; ++h)
+		{
+			const int32 ComponentIndex = w * GridHeight + h;
+			const FVector ComponentLocation = FVector(w * CellSpace - HalfWidth, h * CellSpace - HalfHeight, 0.0f);
+
+			if (ComponentIndex >= Grid.Num())
+			{
+				CreateNewCellComponent(ComponentLocation, CellIndex);
+			}
+			else
+			{
+				if (UCBX_GridCell* GridCellComponent = Grid[ComponentIndex])
+				{
+					GridCellComponent->SetRelativeLocation(ComponentLocation);
+					GridCellComponent->SetIndex(ComponentIndex);
+				}
+			}
+
+			CellIndex++;
+		}
+	}
+}
+
+
+void ACBX_GridManager::CreateNewCellComponent(const FVector& SpawnLocation, int32 CellIndex)
+{
+	const FName ComponentName = FName(TEXT("GridCellComponent") + FString::FromInt(CellIndex));
+
+	if (UCBX_GridCell* GridCellComponent = NewObject<UCBX_GridCell>(this, CellClass, ComponentName))
+	{
+		GridCellComponent->RegisterComponent();
+		GridCellComponent->AttachToComponent(GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
+		GridCellComponent->SetRelativeLocation(SpawnLocation);
+		GridCellComponent->SetRelativeScale3D(FVector(0.1f));
+		GridCellComponent->SetIndex(CellIndex);
+
+		Grid.Add(GridCellComponent);
+	}
+}
 
 

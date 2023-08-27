@@ -22,6 +22,9 @@ public:
 
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintNativeEvent)
+	AActor* GetGridManager();
+
 	UFUNCTION(BlueprintCallable)
 	void ExitGame();
 
@@ -36,6 +39,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void Start();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void WaitingToStart();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void Stop();

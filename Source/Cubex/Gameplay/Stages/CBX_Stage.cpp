@@ -11,14 +11,34 @@ UCBX_Stage::UCBX_Stage()
 {
 	Level = 0;
 	SpawnRate = 2.0f;
-	Duration = ElapsedDuration = 20.0f;
+	Duration = ElapsedDuration = 4.0f;
 	ObstaclesIncludedIndex = 0;
-
+	GridSize = 1;
 	ObstaclesClasses.Add(ACBX_SpykeStrategy::StaticClass());
+}
+
+void UCBX_Stage::SetGridManager(ACBX_GridManager* NewGridManger)
+{
+	GridManager = NewGridManger;
+}
+
+void UCBX_Stage::WaitingToStart()
+{
+	GridManager->ToggleVisibility(false);
+	NextState();
+	if (APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0))
+	{
+		if (ACBX_Hud* HUD = Cast<ACBX_Hud>(PC->GetHUD()))
+		{
+			HUD->ShowPreparationGUI();
+		}
+	}
 }
 
 void UCBX_Stage::Start()
 {
+	GridManager->UpdateSize(GridSize, GridSize);
+	GridManager->ToggleVisibility(true);
 	GetWorld()->GetTimerManager().SetTimer(DurationHandle, this, &UCBX_Stage::ControlStageDuration, 1.0f, true);
 	GetWorld()->GetTimerManager().SetTimer(SpawnHandle, this, &UCBX_Stage::ControlObstacleSpawning, SpawnRate, true);
 	
@@ -37,14 +57,7 @@ void UCBX_Stage::NextState()
 	SpawnRate *= 0.95f;
 	Duration *= 1.1f;
 	ElapsedDuration = Duration;
-
-	if (APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0))
-	{
-		if (ACBX_Hud* HUD = Cast<ACBX_Hud>(PC->GetHUD()))
-		{
-			HUD->ShowPreparationGUI();
-		}
-	}
+	GridSize += 2;
 }
 
 void UCBX_Stage::Stop()
@@ -63,7 +76,7 @@ void UCBX_Stage::ControlStageDuration()
 	if (ElapsedDuration == 0)
 	{
 		Stop();
-		NextState();
+		WaitingToStart();
 		return;
 	}
 

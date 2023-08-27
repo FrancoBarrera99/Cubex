@@ -10,26 +10,31 @@
 
 ACBX_GameMode::ACBX_GameMode()
 {
-	//CurrentGameplayState = CreateDefaultSubobject<UCBX_Stage>(TEXT("Stage"));
 }
 
 void ACBX_GameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	check(GridClass);
+	GridManager = GetWorld()->SpawnActor(GridClass);
+	
+	check(Cast<ACBX_GridManager>(GridManager))
 	CurrentGameplayState = NewObject<UCBX_Stage>(this);
-
-	if (GridClass)
+	if (Cast<ICBX_GameplayState>(CurrentGameplayState))
 	{
-		GridManager = GetWorld()->SpawnActor(GridClass);
+		Cast<ICBX_GameplayState>(CurrentGameplayState)->SetGridManager(Cast<ACBX_GridManager>(GridManager));
 	}
-	if (Cast<ACBX_GridManager>(GridManager))
-	{
-		Cast<ACBX_GridManager>(GridManager)->BuildGrid();
-	}
+	
 	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
 	{
 		PC->SetViewTargetWithBlend(GridManager);
 	}
+}
+
+AActor* ACBX_GameMode::GetGridManager_Implementation()
+{
+	return GridManager;
 }
 
 void ACBX_GameMode::ExitGame()
@@ -72,6 +77,14 @@ void ACBX_GameMode::Start()
 	if (Cast<ICBX_GameplayState>(CurrentGameplayState))
 	{
 		Cast<ICBX_GameplayState>(CurrentGameplayState)->Start();
+	}
+}
+
+void ACBX_GameMode::WaitingToStart()
+{
+	if (Cast<ICBX_GameplayState>(CurrentGameplayState))
+	{
+		Cast<ICBX_GameplayState>(CurrentGameplayState)->WaitingToStart();
 	}
 }
 
