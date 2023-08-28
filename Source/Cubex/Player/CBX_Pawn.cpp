@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "InputAction.h"
+#include "Cubex/Components/CBX_AnimatedStaticMeshComponent.h"
 #include "Cubex/Environment/CBX_GameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -23,7 +24,7 @@ ACBX_Pawn::ACBX_Pawn()
 	InMovement = false;
 	IsDead = false;
 
-	Cube = CreateDefaultSubobject<UStaticMeshComponent>("Cube Mesh Component");
+	Cube = CreateDefaultSubobject<UCBX_AnimatedStaticMeshComponent>("Cube Mesh Component");
 	Cube->SetupAttachment(GetRootComponent());
 
 }
@@ -69,8 +70,8 @@ void ACBX_Pawn::Die()
 
 void ACBX_Pawn::FinishDying()
 {
-	//TODO : spawn particles
-
+	Cube->ChangeVisibility(false);
+	
 	if (ACBX_GameMode* GameMode = Cast<ACBX_GameMode>(UGameplayStatics::GetGameMode(GetWorld())))
 	{
 		GameMode->EndGame();

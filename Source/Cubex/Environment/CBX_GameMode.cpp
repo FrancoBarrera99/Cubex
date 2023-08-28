@@ -75,6 +75,7 @@ int32 ACBX_GameMode::GetGameplayStateLevel()
 void ACBX_GameMode::ChangeFieldVisibility(bool bIsVisible)
 {
 	GridManager->ToggleVisibility(bIsVisible);
+	PlayerPawn->Cube->ChangeVisibility(bIsVisible);
 }
 
 void ACBX_GameMode::LoadField()

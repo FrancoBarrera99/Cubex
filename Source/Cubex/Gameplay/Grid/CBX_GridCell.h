@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/StaticMeshComponent.h"
+#include "Cubex/Components/CBX_AnimatedStaticMeshComponent.h"
 #include "CBX_GridCell.generated.h"
 
 UENUM(BlueprintType)
@@ -13,20 +13,11 @@ enum ECellState
 	Obstacle
 };
 
-UENUM(BlueprintType)
-enum EVisibilityAnimationState
-{
-	Waiting,
-	Showing,
-	Hiding,
-	Finished
-};
-
 /**
  * 
  */
 UCLASS()
-class CUBEX_API UCBX_GridCell : public UStaticMeshComponent
+class CUBEX_API UCBX_GridCell : public UCBX_AnimatedStaticMeshComponent
 {
 	GENERATED_BODY()
 public:
@@ -47,32 +38,8 @@ public:
 	UFUNCTION()
 	virtual int32 GetIndex();
 
-	UFUNCTION()
-	virtual void ChangeVisibility(bool bIsVisible);
-
 protected:
-
-	UFUNCTION()
-	void UpdateScale();
-
-	UFUNCTION()
-	void StopUpdatingScale();
-
-	UFUNCTION()
-	bool ShouldFinishAnimation() const;
-
-	UPROPERTY()
-	float VisibilityAnimationRate;
-
-	UPROPERTY()
-	bool bIsUpdating;
-
-	UPROPERTY()
-	FTimerHandle VisibilityAnimationTimerHandle;
-
-	UPROPERTY()
-	TEnumAsByte<EVisibilityAnimationState> VisibilityAnimationState;
-
+	
 	UPROPERTY()
 	int32 Index;
 

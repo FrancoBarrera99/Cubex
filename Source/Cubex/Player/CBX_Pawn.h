@@ -8,9 +8,10 @@
 #include "GameFramework/Pawn.h"
 #include "CBX_Pawn.generated.h"
 
-DECLARE_DELEGATE(FMovementFinished);
-
+class UCBX_AnimatedStaticMeshComponent;
 class UInputAction;
+
+DECLARE_DELEGATE(FMovementFinished);
 
 UCLASS()
 class CUBEX_API ACBX_Pawn : public APawn, public ICBX_GridMovement
@@ -36,7 +37,7 @@ public:
 	UInputAction* InputMove;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	UStaticMeshComponent* Cube;
+	UCBX_AnimatedStaticMeshComponent* Cube;
 
 protected:
 	
