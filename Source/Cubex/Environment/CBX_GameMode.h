@@ -6,6 +6,9 @@
 #include "GameFramework/GameMode.h"
 #include "CBX_GameMode.generated.h"
 
+class ACBX_GameState;
+class ACBX_Pawn;
+class UCBX_Stage;
 class ACBX_GridManager;
 class UCBX_GameContext;
 /**
@@ -27,32 +30,50 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ExitGame();
-
-	UFUNCTION()
-	void EndGame();
 	
 	UFUNCTION(BlueprintCallable)
 	int32 GetGameplayStateLevel();
 
-	UFUNCTION(BlueprintCallable)
-	virtual void NextState();
+	UFUNCTION()
+	void ChangeFieldVisibility(bool bIsVisible);
 
 	UFUNCTION(BlueprintCallable)
-	virtual void Start();
-
+	void LoadField();
+		
 	UFUNCTION(BlueprintCallable)
 	virtual void WaitingToStart();
+	
+	UFUNCTION(BlueprintCallable)
+	virtual void Start();
+	
+	UFUNCTION(BlueprintCallable)
+	virtual void NextRound();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void Stop();
+	
+	UFUNCTION()
+	void EndGame();
 
 protected:
 
-	UPROPERTY(meta=(MustImplement = "CBX_GameplayState"))
-	UObject* CurrentGameplayState;
+	UPROPERTY()
+	int32 GameplayRound;
 
 	UPROPERTY()
-	AActor* GridManager;
+	bool bIsGameEnded;
+
+	UPROPERTY()
+	UCBX_Stage* GameplayStage;
+
+	UPROPERTY()
+	ACBX_GridManager* GridManager;
+
+	UPROPERTY()
+	ACBX_GameState* CbxGameState;
+
+	UPROPERTY()
+	ACBX_Pawn* PlayerPawn;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> GridClass;
