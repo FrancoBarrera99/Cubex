@@ -12,7 +12,7 @@
 ACBX_GameMode::ACBX_GameMode()
 {
 	GameplayRound = 1;
-	bIsGameEnded = false;
+	GameplayState = WaitingToBeStarted;
 }
 
 void ACBX_GameMode::BeginPlay()
@@ -54,7 +54,7 @@ void ACBX_GameMode::ExitGame()
 
 void ACBX_GameMode::EndGame()
 {
-	bIsGameEnded = true;
+	GameplayState = Ended;
 	ChangeFieldVisibility(false);
 	CbxGameState->StopDurationTimer();
 	
@@ -70,6 +70,11 @@ void ACBX_GameMode::EndGame()
 int32 ACBX_GameMode::GetGameplayStateLevel()
 {
 	return GameplayRound;
+}
+
+TEnumAsByte<EGameplayState> ACBX_GameMode::GetGameplayState()
+{
+	return GameplayState;
 }
 
 void ACBX_GameMode::ChangeFieldVisibility(bool bIsVisible)
@@ -91,6 +96,8 @@ void ACBX_GameMode::NextRound()
 
 void ACBX_GameMode::Start()
 {
+	GameplayState = Started;
+	
 	if (APlayerController* PC = Cast<APlayerController>(PlayerPawn->GetController()))
 	{
 		if (ACBX_Hud* HUD = Cast<ACBX_Hud>(PC->GetHUD()))
@@ -104,6 +111,7 @@ void ACBX_GameMode::Start()
 
 void ACBX_GameMode::WaitingToStart()
 {
+	GameplayState = WaitingToBeStarted;
 	if (APlayerController* PC = Cast<APlayerController>(PlayerPawn->GetController()))
 	{
 		if (ACBX_Hud* HUD = Cast<ACBX_Hud>(PC->GetHUD()))
@@ -115,11 +123,12 @@ void ACBX_GameMode::WaitingToStart()
 
 void ACBX_GameMode::Stop()
 {
-	if (bIsGameEnded)
+	if (GameplayState == Ended)
 	{
 		return;
 	}
-	
+
+	GameplayState = Stopped;
 	ChangeFieldVisibility(false);
 	NextRound();
 

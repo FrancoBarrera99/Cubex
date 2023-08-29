@@ -80,8 +80,14 @@ void ACBX_Pawn::FinishDying()
 
 void ACBX_Pawn::Move(const FInputActionValue& Value)
 {
-	const FVector2D MoveValue = Value.Get<FVector2D>();
+	const EGameplayState GameplayState = Cast<ACBX_GameMode>(GetWorld()->GetAuthGameMode())->GetGameplayState();
+	if ((GameplayState != Started))
+	{
+		return;
+	}
 
+	const FVector2D MoveValue = Value.Get<FVector2D>();
+	
 	if (FMath::Abs(MoveValue.X) >= FMath::Abs(MoveValue.Y))
 	{
 		CheckMovement(FVector2D(MoveValue.X, 0));

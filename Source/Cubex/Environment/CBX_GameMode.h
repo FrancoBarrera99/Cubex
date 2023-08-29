@@ -11,6 +11,16 @@ class ACBX_Pawn;
 class UCBX_Stage;
 class ACBX_GridManager;
 class UCBX_GameContext;
+
+UENUM(BlueprintType)
+enum EGameplayState
+{
+	WaitingToBeStarted,
+	Started,
+	Stopped,
+	Ended
+};
+
 /**
  * 
  */
@@ -33,6 +43,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	int32 GetGameplayStateLevel();
+
+	UFUNCTION()
+	TEnumAsByte<EGameplayState> GetGameplayState();
 
 	UFUNCTION()
 	void ChangeFieldVisibility(bool bIsVisible);
@@ -61,7 +74,7 @@ protected:
 	int32 GameplayRound;
 
 	UPROPERTY()
-	bool bIsGameEnded;
+	TEnumAsByte<EGameplayState> GameplayState;
 
 	UPROPERTY()
 	UCBX_Stage* GameplayStage;
